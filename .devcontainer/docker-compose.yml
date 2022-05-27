@@ -1,7 +1,7 @@
 version: '3.8'
 volumes:
   db-store:
-    driver: local
+    #driver: local
 services:
   app:
     build: .
@@ -19,8 +19,8 @@ services:
       - DB_PASSWORD=${DB_PASS:-root}
     ports:
       - 8080:8080
-    networks:
-      - app-network
+    #networks:
+    #  - app-network
   db:
     build:
       context: .
@@ -39,8 +39,8 @@ services:
       - MYSQL_USER=${DB_USER:-root}
       - MYSQL_PASSWORD=${DB_PASS:-root}
       - MYSQL_ROOT_PASSWORD=${DB_PASS:-root}
-    networks:
-      - app-network
+    #networks:
+    #  - app-network
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     environment:
@@ -52,8 +52,8 @@ services:
       - db
     ports:
       - 4848:80
-    networks:
-      - app-network
-networks:
-  app-network:
-    driver: bridge
+    #networks:
+    #  - app-network
+#networks:
+#  app-network:
+#    driver: bridge
