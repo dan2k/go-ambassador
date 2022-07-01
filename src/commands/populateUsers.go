@@ -7,7 +7,7 @@ import (
 	"github.com/bxcodec/faker/v3"
 )
 
-func mainx() {
+func main1() {
 	database.Connect()
 	for i := 0; i < 30; i++ {
 		ambassador := models.User{
