@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"ambassador/src/database"
+	"ambassador/src/middlewares"
 	"ambassador/src/models"
 	"strconv"
 	"time"
@@ -32,7 +33,12 @@ func Register(c *fiber.Ctx) error {
 		IsAmbassador: false,
 	}
 	user.SetPassword(data["password"])
-	database.DB.Create(&user)
+	if err :=database.DB.Create(&user); err !=nil{
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"error": err.Error,
+		})
+	}
 	return c.JSON(user)
 }
 func Login(c *fiber.Ctx) error{
@@ -84,20 +90,21 @@ func Login(c *fiber.Ctx) error{
 
 }
 func User(c *fiber.Ctx) error{
-	cookie :=c.Cookies("jwt")
-
-	token,err := jwt.ParseWithClaims(cookie,&jwt.StandardClaims{},func(token *jwt.Token)(interface{},error){
-		return []byte("secret"),nil
-	})
-
-	if err !=nil || !token.Valid{
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"message": "unauthenticated",
-		})
-	}
+	
 	var user models.User
-	payload := token.Claims.(*jwt.StandardClaims)
-	database.DB.Where("id = ?",payload.Subject).First(&user)
+	id,_ := middlewares.GetUserId(c)
+	database.DB.Where("id = ?",id).First(&user)
 	return c.JSON(user)
+}
+func Logout(c *fiber.Ctx) error{
+	cookie:=fiber.Cookie{
+		Name: "jwt",
+		Value: "",
+		Expires: time.Now().Add(time.Hour),
+		HTTPOnly: true,
+	}
+	c.Cookie(&cookie)
+	return c.JSON(fiber.Map{
+		"message":"success",
+	})
 }
