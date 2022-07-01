@@ -6,10 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	// 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func Register(c *fiber.Ctx) error {
@@ -25,15 +23,15 @@ func Register(c *fiber.Ctx) error {
 			"message": "password do not match",
 		})
 	}
-	password,_ := bcrypt.GenerateFromPassword([]byte(data["password"]),12)
+	
 
 	user := models.User{
 		FirstName:    data["first_name"],
 		LastName:     data["last_name"],
 		Email:        data["email"],
-		Password:     password,
 		IsAmbassador: false,
 	}
+	user.SetPassword(data["password"])
 	database.DB.Create(&user)
 	return c.JSON(user)
 }
@@ -53,7 +51,7 @@ func Login(c *fiber.Ctx) error{
 		})
 	}
 
-	if err :=bcrypt.CompareHashAndPassword(user.Password,[]byte(data["password"])); err !=nil{
+	if err :=user.ComparePassword(data["password"]); err !=nil{
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
 			"message": "Invalid Credentials 2",
