@@ -17,8 +17,9 @@
     }
   },
   "extensions": [
-    "doggy8088.go-extension-pack",
-    "golang.go",
-    "MS-CEINTL.vscode-language-pack-ja"
-  ],
+	"doggy8088.go-extension-pack",
+	"golang.go",
+	"MS-CEINTL.vscode-language-pack-ja",
+	"rangav.vscode-thunder-client"
+],
 }
