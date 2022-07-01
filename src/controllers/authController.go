@@ -37,7 +37,6 @@ func Register(c *fiber.Ctx) error {
 }
 func Login(c *fiber.Ctx) error{
 	var data map[string]string
-
 	if err := c.BodyParser(&data); err != nil {
 		return err
 	}
@@ -83,4 +82,22 @@ func Login(c *fiber.Ctx) error{
 		"message": "success",
 	})
 
+}
+func User(c *fiber.Ctx) error{
+	cookie :=c.Cookies("jwt")
+
+	token,err := jwt.ParseWithClaims(cookie,&jwt.StandardClaims{},func(token *jwt.Token)(interface{},error){
+		return []byte("secret"),nil
+	})
+
+	if err !=nil || !token.Valid{
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"message": "unauthenticated",
+		})
+	}
+	var user models.User
+	payload := token.Claims.(*jwt.StandardClaims)
+	database.DB.Where("id = ?",payload.Subject).First(&user)
+	return c.JSON(user)
 }
