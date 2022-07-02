@@ -19,6 +19,9 @@ services:
       - DB_PASSWORD=${DB_PASS:-root}
     ports:
       - 8080:8080
+    depends_on:
+      - db
+      - redis
     #networks:
     #  - app-network
   db:
@@ -57,3 +60,7 @@ services:
 #networks:
 #  app-network:
 #    driver: bridge
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
