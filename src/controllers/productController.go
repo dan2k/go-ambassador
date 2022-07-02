@@ -46,8 +46,18 @@ func UpdateProduct(c *fiber.Ctx) error{
 		return err 
 	}
 	database.DB.Model(&product).Updates(&product)
+	//clear cache เพราะมีการอัพเดต ดาต้า ระบบจะดึงข้อมูลใหม่
+	// database.Cache.Del(context.Background(),"products_frontend","products_backend")
+	// ใช้ goroutine เพื่อให้เป็นการทำงานแบบ async
+	go deleteCache("products_backend")
+	go deleteCache("products_frontend")
+
 	return c.JSON(product)
 	
+}
+func deleteCache(key string){
+	time.Sleep(5*time.Second)
+	database.Cache.Del(context.Background(),key)
 }
 func DeleteProduct(c *fiber.Ctx) error{
 	id,_ := strconv.Atoi(c.Params("id"))
